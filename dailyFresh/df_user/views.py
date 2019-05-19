@@ -77,10 +77,21 @@ def login_check(request):
 
 
 def info(request):
-    return render(request, 'df_user/user_center_info.html')
+    uname = request.session.get('user_name')
+    print(uname)
+    if uname:
+        email = UserInfo.objects.get(id=request.session.get('user_id')).uemail
+        return render(request, 'df_user/user_center_info.html', {'uname': uname, 'email': email})
+    else:
+        return redirect('/user/login')
 
 
+def order(request):
+    return render(request, 'df_user/user_center_order.html')
 
+
+def site(request):
+    return render(request, 'df_user/user_center_site.html')
 
 
 
