@@ -2,11 +2,8 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseRedirect
 from .models import *
+from . import user_decorator
 from hashlib import sha1
-
-
-def temp(request):
-    return render(request, 'df_user/temp.html')
 
 
 def register(request):
@@ -77,6 +74,7 @@ def login_check(request):
         return render(request, 'df_user/login.html', context)
 
 
+@user_decorator.login
 def info(request):
     uname = request.session.get('user_name')
     print(uname)
@@ -88,11 +86,13 @@ def info(request):
         return redirect('/user/login')
 
 
+@user_decorator.login
 def order(request):
     context = {'uname': request.session.get('user_name'), 'title': '订单中心', 'page_name': 1}
     return render(request, 'df_user/user_center_order.html', context)
 
 
+@user_decorator.login
 def site(request):
     uid = request.session.get('user_id')
     if uid:
@@ -114,6 +114,10 @@ def logout(request):
     request.session.flush()
     return redirect('/')
 
+
+@user_decorator.login
+def cart(request):
+    return render(request, 'df_user/cart.html', {'page_name': 1, 'title': "购物车"})
 
 
 

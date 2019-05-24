@@ -13,10 +13,10 @@ urlpatterns = [
     url(r'^register_handle/$', views.register_handle),
     url(r'^register_exist/$', views.register_exist),
     url(r'^login_check/$', views.login_check),
-    url(r'^temp/$', views.temp),
     url(r'^info/$', views.info),
     url(r'^site/$', views.site),
     url(r'^order/$', views.order),
     url(r'^logout/$', views.logout),
+    url(r'^cart/$', views.cart),
 ]
 
