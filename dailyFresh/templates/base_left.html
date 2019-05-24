@@ -1,0 +1,24 @@
+{% extends 'base_top.html' %}
+{% block head %}
+    <script>
+    $(document).ready(function(){
+        var path= location.pathname;
+        $('a.active').removeClass('active');
+        $("a[href='"+path+"']").addClass('active');
+    });
+    </script>
+{% endblock head %}
+{% block body %}
+
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="/user/info/">· 个人信息</a></li>
+				<li><a href="/user/order/">· 全部订单</a></li>
+				<li><a href="/user/site/" class="active">· 收货地址</a></li>
+			</ul>
+		</div>
+        {% block right_content %} {% endblock right_content %}
+    </div>
+{% endblock body %}

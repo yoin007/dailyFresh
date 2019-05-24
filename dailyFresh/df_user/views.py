@@ -60,7 +60,8 @@ def login_check(request):
         s1 = sha1()
         s1.update(upwd.encode('utf-8'))
         if s1.hexdigest() == users[0].upwd:
-            red = HttpResponseRedirect('/user/info/')
+            url = request.COOKIES.get('url', '/')
+            red = HttpResponseRedirect(url)
             if jizhu != 0:
                 red.set_cookie('uname', uname)
             else:
@@ -81,17 +82,37 @@ def info(request):
     print(uname)
     if uname:
         email = UserInfo.objects.get(id=request.session.get('user_id')).uemail
-        return render(request, 'df_user/user_center_info.html', {'uname': uname, 'email': email})
+        address = UserInfo.objects.get(id=request.session.get('user_id')).uaddress
+        return render(request, 'df_user/user_center_info.html', {'title': '用户中心', 'uname': uname, 'email': email, 'address':address, 'page_name': 1})
     else:
         return redirect('/user/login')
 
 
 def order(request):
-    return render(request, 'df_user/user_center_order.html')
+    context = {'uname': request.session.get('user_name'), 'title': '订单中心', 'page_name': 1}
+    return render(request, 'df_user/user_center_order.html', context)
 
 
 def site(request):
-    return render(request, 'df_user/user_center_site.html')
+    uid = request.session.get('user_id')
+    if uid:
+        user = UserInfo.objects.get(id=uid)
+        if request.method == "POST":
+            post = request.POST
+            user.ushou = post.get('ushou')
+            user.uyoubian = post.get('uyoubian')
+            user.uaddress = post.get('uaddress')
+            user.uphone = post.get('uphone')
+            user.save()
+        context = {'uname': request.session.get('user_name'), 'title': '收货地址', 'user': user, 'page_name': 1}
+        return render(request, 'df_user/user_center_site.html', context)
+    else:
+        return redirect('/user/login/')
+
+
+def logout(request):
+    request.session.flush()
+    return redirect('/')
 
 
 
