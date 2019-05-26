@@ -1,11 +1,17 @@
 from django.shortcuts import render
 from .models import *
 from django.core.paginator import Paginator
+from df_cart.models import CartInfo
 
 # Create your views here.
 
 
 def index(request):
+    uid = request.session.get('user_id')
+    if uid:
+        cart_amount = CartInfo.objects.filter(user_id=int(uid)).count()
+    else:
+        cart_amount = 0
     type_list = TypeInfo.objects.all()
     type0 = type_list[0].goodsinfo_set.order_by('-id')[0:4]
     type01 = type_list[0].goodsinfo_set.order_by('-gclick')[0:4]
@@ -26,6 +32,7 @@ def index(request):
                'type3': type3, 'type31': type31,
                'type4': type4, 'type41': type41,
                'type5': type5, 'type51': type51,
+               'cart_amount': cart_amount
                }
     return render(request, 'df_goods/index.html', context)
 
@@ -52,6 +59,11 @@ def goods_list(request, tid, pindex, sort):
 
 
 def detail(request, gid):
+    uid = request.session.get('user_id')
+    if uid:
+        cart_amount = CartInfo.objects.filter(user_id=int(uid)).count()
+    else:
+        cart_amount = 0
     gid = int(gid)
     goods = GoodsInfo.objects.get(pk=gid)
     goods.gclick += 1
@@ -60,5 +72,23 @@ def detail(request, gid):
     # news = goods.gtype.goodsinfo_set.order_by('-id')[0:2]
     # print(news)
     # print(new)
-    return render(request, 'df_goods/detail.html',
-                  {'g': goods, 'title': goods.gtype.ttitle, 'guest_cart': 1, 'id': gid, 'new': new})
+    response = render(request, 'df_goods/detail.html',
+                      {'g': goods, 'title': goods.gtype.ttitle,
+                       'guest_cart': 1, 'id': gid, 'new': new, 'cart_amount': cart_amount})
+
+    goods_ids = request.COOKIES.get('goods_ids', '')
+    gid = str(gid)
+    if goods_ids != '':
+        goods_ids1 = goods_ids.split(',')
+        if gid in goods_ids1:
+            goods_ids1.remove(gid)
+        goods_ids1.insert(0, gid)
+        if len(goods_ids1) >= 6:
+            goods_ids1.pop()
+        goods_ids = ','.join(goods_ids1)
+    else:
+        goods_ids = gid
+
+    response.set_cookie('goods_ids', goods_ids)
+
+    return response

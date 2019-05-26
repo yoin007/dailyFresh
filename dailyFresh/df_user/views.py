@@ -4,6 +4,8 @@ from django.http import JsonResponse, HttpResponseRedirect
 from .models import *
 from . import user_decorator
 from hashlib import sha1
+from df_goods.models import GoodsInfo
+from df_cart.models import CartInfo
 
 
 def register(request):
@@ -77,11 +79,16 @@ def login_check(request):
 @user_decorator.login
 def info(request):
     uname = request.session.get('user_name')
-    print(uname)
+    goods_list = []
+    goods_ids = request.COOKIES.get('goods_ids', '')
+    if goods_ids != '':
+        goods_ids1 = goods_ids.split(',')
+        for g in goods_ids1:
+            goods_list.append(GoodsInfo.objects.get(id=int(g)))
     if uname:
         email = UserInfo.objects.get(id=request.session.get('user_id')).uemail
         address = UserInfo.objects.get(id=request.session.get('user_id')).uaddress
-        return render(request, 'df_user/user_center_info.html', {'title': '用户中心', 'uname': uname, 'email': email, 'address':address, 'page_name': 1})
+        return render(request, 'df_user/user_center_info.html', {'title': '用户中心', 'uname': uname, 'email': email, 'address':address, 'page_name': 1, 'goods_list': goods_list})
     else:
         return redirect('/user/login')
 
@@ -117,7 +124,12 @@ def logout(request):
 
 @user_decorator.login
 def cart(request):
-    return render(request, 'df_user/cart.html', {'page_name': 1, 'title': "购物车"})
+    uid = request.session.get('user_id')
+    cart_list = CartInfo.objects.filter(user_id=int(uid))
+    for g in cart_list:
+        g.goods = GoodsInfo.objects.get(pk=g.good_id)
+
+    return render(request, 'df_user/cart.html', {'page_name': 1, 'title': "购物车", 'cart_list': cart_list})
 
 
 
