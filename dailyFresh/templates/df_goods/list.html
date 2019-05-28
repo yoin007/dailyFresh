@@ -37,7 +37,7 @@
 					<div class="operate">
 						<span class="prize">￥{{ g.gprice }}</span>
 						<span class="unit">{{ g.gprice }}/{{ g.gunit }}</span>
-						<a href="javascript:;" class="add_goods" title="加入购物车" val="{{ g.id }}"></a>
+						<a href="/cart/add{{ g.id }}_1/" class="add_goods" title="加入购物车"></a>
 					</div>
 				</li>
                 {% endfor %}
@@ -45,7 +45,7 @@
 
 			<div class="pagenation">
             {% if page.has_previous %}
-                <a href="/list{{ typeinfo.id }}_{{ page.previous_page_number }}_{{ sort }}/"><上一页</a>
+                <a href="/list{{ typeinfo.id }}_{{ page.previous_page_number }}_{{ sort }}/">《上一页</a>
             {% endif %}
                 {% for p in paginator.page_range %}
                     {% if p == page.number %}
@@ -55,7 +55,7 @@
                     {% endif %}
                 {% endfor %}
                 {% if page.has_next %}
-				<a href="/list{{ typeinfo.id }}_{{ page.next_page_number }}_{{ sort }}/">下一页></a>
+				<a href="/list{{ typeinfo.id }}_{{ page.next_page_number }}_{{ sort }}/">下一页》</a>
                 {% endif %}
 			</div>
 		</div>

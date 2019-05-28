@@ -12,7 +12,7 @@
         </ul>
 
         {% for g in cart_list %}
-        <ul class="cart_list_td clearfix" id="{{ g.good_id }}">
+        <ul class="cart_list_td clearfix" id="{{ g.id }}">
             <li class="col01"><input type="checkbox" name="" checked></li>
             <li class="col02"><img src="/static/images/{{ g.goods.gpic }}"></li>
             <li class="col03">{{ g.goods.gtitle }}<br><em>{{ g.goods.gprice }}元/{{ g.goods.gunit }}</em></li>
@@ -21,12 +21,12 @@
             <li class="col06">
                 <div class="num_add">
                     <a href="javascript:;" class="add fl">+</a>
-                    <input type="text" class="num_show fl" value="1">
+                    <input type="text" class="num_show fl" value="{{ g.count }}">
                     <a href="javascript:;" class="minus fl">-</a>
                 </div>
             </li>
             <li class="col07">{{ g.goods.gprice }}元</li>
-            <li class="col08"><a href="javascript:;">删除</a></li>
+            <li class="col08"><a href="javascript:;" class="del_cart" val="{{ g.id }}">删除</a></li>
         </ul>
         {% endfor %}
 
@@ -41,6 +41,15 @@
     <a href="/">Go</a>
     {% endif %}
     <script>
+    // 小计计算
+    $('.col07').each(function () {
+       var price = parseFloat($(this).parent().find('.col05').text());
+       var amount = parseFloat($(this).parent().find('input.num_show').val());
+       var total0 = price * amount;
+       $(this).text(total0.toFixed(2));
+    });
+
+    // 总计
      function total() {
         var total = 0;
         var amount = 0;
@@ -61,6 +70,7 @@
         $('.settlements').find('em').text(total.toFixed(2));
         $('.settlements').find('b').text(amount);
     }
+    total();
 
 
     // 全选和取消全选
@@ -110,11 +120,34 @@
            count = 1;
         }
         $(this).val(count);
+        var cart_id = $(this).parents('.cart_list_td').attr('id');
+        $.get('/cart/edit',{'cart_id': cart_id, 'amount': count}, function (data) {
+            if(data['ok'] == 0){
+                total();
+            }else{
+                $(this).val(data['ok']);
+            }
+
+        });
         var price = $(this).parent().parent().prev().text();
         var count = $(this).val();
         var total0 = parseFloat(price)*parseFloat(count);
         $(this).parent().parent().next().text(total0.toFixed(2)+"元");
         total();
+    });
+
+    // 删除购物车商品
+    $('.del_cart').click(function () {
+        del = confirm('确认删除该商品吗？');
+        if(del){
+            $.get('/cart/del_cart/'+$(this).attr('val')+'/', function (data) {
+            if(data['ok']){
+                $('#'+data['ok']).remove();
+                total();
+            }
+            });
+        }
+
     });
 
     </script>

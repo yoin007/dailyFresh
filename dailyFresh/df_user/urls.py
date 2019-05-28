@@ -17,6 +17,5 @@ urlpatterns = [
     url(r'^site/$', views.site),
     url(r'^order/$', views.order),
     url(r'^logout/$', views.logout),
-    url(r'^cart/$', views.cart),
 ]
 

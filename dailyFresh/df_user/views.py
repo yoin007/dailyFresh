@@ -122,14 +122,7 @@ def logout(request):
     return redirect('/')
 
 
-@user_decorator.login
-def cart(request):
-    uid = request.session.get('user_id')
-    cart_list = CartInfo.objects.filter(user_id=int(uid))
-    for g in cart_list:
-        g.goods = GoodsInfo.objects.get(pk=g.good_id)
 
-    return render(request, 'df_user/cart.html', {'page_name': 1, 'title': "购物车", 'cart_list': cart_list})
 
 
 
