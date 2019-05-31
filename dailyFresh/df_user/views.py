@@ -88,7 +88,8 @@ def info(request):
     if uname:
         email = UserInfo.objects.get(id=request.session.get('user_id')).uemail
         address = UserInfo.objects.get(id=request.session.get('user_id')).uaddress
-        return render(request, 'df_user/user_center_info.html', {'title': '用户中心', 'uname': uname, 'email': email, 'address':address, 'page_name': 1, 'goods_list': goods_list})
+        return render(request, 'df_user/user_center_info.html', {'title': '用户中心', 'uname': uname, 'email': email,
+                                                                 'address': address, 'page_name': 1, 'goods_list': goods_list})
     else:
         return redirect('/user/login')
 
