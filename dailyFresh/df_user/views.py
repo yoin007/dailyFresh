@@ -6,6 +6,8 @@ from . import user_decorator
 from hashlib import sha1
 from df_goods.models import GoodsInfo
 from df_cart.models import CartInfo
+from df_order.models import *
+from django.core.paginator import Paginator
 
 
 def register(request):
@@ -95,8 +97,25 @@ def info(request):
 
 
 @user_decorator.login
-def order(request):
-    context = {'uname': request.session.get('user_name'), 'title': '订单中心', 'page_name': 1}
+def order(request, index):
+    if index == '':
+        index = 1
+    else:
+        index = int(index)
+    uid = request.session.get('user_id')
+    order_list = OrderInfo.objects.filter(user_id=uid)
+    for order1 in order_list:
+        order1.odate = order1.odate.strftime("%Y-%m-%d %H:%M:%S")
+        order1.detail = OrderDetailInfo.objects.filter(order_id=order1.oid)
+        for good in order1.detail:
+            good.good = GoodsInfo.objects.get(pk=good.id)
+
+    order_list1 = Paginator(order_list, 2)
+    order_list2 = order_list1.page(index)
+    plist = order_list1.page_range
+
+    context = {'uname': request.session.get('user_name'), 'title': '订单中心', 'page_name': 1,
+               'order_list': order_list2, 'plist': plist, 'index': index}
     return render(request, 'df_user/user_center_order.html', context)
 
 

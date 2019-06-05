@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'tinymce',
     'df_cart',
     'df_order',
+    'haystack',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -96,7 +97,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -124,4 +125,13 @@ TINYMCE_DEFAULT_CONFIG = {
     'height': 400,
 }
 
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 12
 

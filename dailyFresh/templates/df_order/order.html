@@ -54,7 +54,7 @@
 		<div class="settle_con">
 			<div class="total_goods_count">共<em>{{ good_list.count }}</em>件商品，总金额<b>{{ total }}元</b></div>
 			<div class="transit">运费：<b>10元</b></div>
-			<div class="total_pay">实付款：<b>52.60元</b></div>
+			<div class="total_pay">实付款：<b>52.60</b>元</div>
 		</div>
 	</div>
 
@@ -80,7 +80,7 @@
 
             });
             var total2 = parseFloat($('.total_goods_count b').text()) + parseFloat($('.transit b').text());
-            $('.total_pay b').text(total2.toFixed(2)+'元');
+            $('.total_pay b').text(total2.toFixed(2));
         });
 
         //  提交订单
@@ -89,9 +89,12 @@
 		    $('.goods_list_td').each(function () {
                 good_list.push($(this).attr('id'));
             });
-		    var total = $('.total_pay b').text()
-		    $.post('/order/order_handle/', {good_list: good_list, total: total}, function (data) {
-               if(data == 'ok'){
+		    good_list = JSON.stringify(good_list);
+		    var total = $('.total_pay b').text();
+            var token = $.cookie('csrftoken');
+		    $.post('/order/order_handle/', {csrfmiddlewaretoken: token, good_list: good_list, total: total}, function (data) {
+		        alert(data);
+                if(data == 'ok'){
                    localStorage.setItem('order_finish', '2');
 
 			        $('.popup_con').fadeIn('fast', function() {

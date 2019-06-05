@@ -49,11 +49,12 @@ def goods_list(request, tid, pindex, sort):
 
     paginator = Paginator(goods, 10)
     page = paginator.page(int(pindex))
+    cart_count1 = cart_count(request)
     context = {
         'title': typeinfo.ttitle, 'guest_cart': 1,
         'page': page, 'paginator': paginator,
         'typeinfo': typeinfo, 'sort': sort,
-        'new': new,
+        'new': new, 'cart_amount': cart_count1,
     }
     return render(request, 'df_goods/list.html', context)
 
@@ -92,3 +93,21 @@ def detail(request, gid):
     response.set_cookie('goods_ids', goods_ids)
 
     return response
+
+
+def cart_count(request):
+    if request.session.has_key('user_id'):
+        return CartInfo.objects.filter(user_id=int(request.session.get('user_id'))).count()
+    else:
+        return 0
+
+
+from haystack.views import SearchView
+class MySearchView(SearchView):
+    def extra_context(self):
+        context = super(MySearchView, self).extra_context()
+        context['title'] = '搜索'
+        context['guest_cart'] = 1
+        context['cart_count'] = cart_count(self.request)
+        context['cart_amount'] = cart_count(self.request)
+        return context

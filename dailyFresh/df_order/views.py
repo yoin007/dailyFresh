@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from df_user import user_decorator
 from df_cart.models import CartInfo
 from df_goods.models import GoodsInfo
@@ -6,6 +7,7 @@ from .models import OrderInfo, OrderDetailInfo
 from django.db import transaction
 from datetime import datetime
 from decimal import Decimal
+import json
 
 # Create your views here.
 
@@ -28,25 +30,25 @@ def order(request):
 @user_decorator.login
 def order_handle(request):
     tran_id = transaction.savepoint()
-
     cart_ids = request.POST.get('good_list')
+    cart_ids = json.loads(cart_ids)
     try:
         order = OrderInfo()
         now = datetime.now()
         uid = request.session.get('user_id')
-        order.oid = '%s%d'%(now.strftime('%Y%m%d%H%M%S'), uid)
+        order.oid = '%s%d' % (now.strftime('%Y%m%d%H%M%S'), uid)
         order.user_id = uid
         order.odate = now
-        order.ototal = Decimal(request.POST.get('total'))
+        order.ototal = Decimal(float(request.POST.get('total')))
         order.save()
 
-        cart_ids1 = [int(item) for item in cart_ids.split(',')]
+        cart_ids1 = [int(item) for item in cart_ids]
         for id1 in cart_ids1:
             detail = OrderDetailInfo()
             detail.order = order
             cart = CartInfo.objects.get(id=id1)
 
-            goods = cart.goods
+            goods = cart.good
 
             if goods.gkucun >= cart.count:
                 goods.gkucun = goods.gkucun - cart.count
@@ -58,10 +60,11 @@ def order_handle(request):
                 cart.delete()
             else:
                 transaction.savepoint_rollback(tran_id)
-                return redirect('/cart/')
+                return HttpResponse('error')
         transaction.savepoint_commit(tran_id)
+        return HttpResponse('ok')
     except Exception as e:
-        print '======================%s'%e
+        print('======================%s' % e)
         transaction.savepoint_rollback(tran_id)
+        return HttpResponse('error')
 
-    return redirect('/user/order/')

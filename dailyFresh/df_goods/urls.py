@@ -6,11 +6,12 @@
 
 
 from django.conf.urls import url
-from . import views
+from .views import *
 
 
 urlpatterns = [
-    url('^$', views.index),
-    url('^list(\d+)_(\d+)_(\d+)/$', views.goods_list),
-    url(r'^(\d+)/$', views.detail),
+    url('^$', index),
+    url('^list(\d+)_(\d+)_(\d+)/$', goods_list),
+    url(r'^(\d+)/$', detail),
+    url(r'^search/', MySearchView()),
 ]
